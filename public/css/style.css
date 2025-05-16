@@ -77,3 +77,14 @@ body{
 .listing-card {
     border: none !important;
 }
+
+/*Flash message alined */
+.flash-container {
+    position: fixed;
+    top: 20px; /* Adjust this value to control vertical positioning */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050; /* Ensure it appears above other elements */
+    width: 50%; /* Adjust width as needed */
+    text-align: center;
+  }

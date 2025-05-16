@@ -1,84 +1,146 @@
 <% layout('/layouts/boilerplate.ejs') %>
-<div class="row mt-3">
-  <div class="col-8 offset-3">
-    <h3><%= listing.title %></h3>
-  </div>
-  <div class="listing-card col-6 offset-3">
-    <img
-      src="<%= listing.image %>"
-      class="card-img-top show-img"
-      alt="listing image"
-    />
-    <div class="card-body">
-      <p class="card-text">
-        <%= listing.description %> <br />
-        <%= listing.price.toLocaleString("bn-BD",{ style: 'currency', currency:
-        'BDT' }) %> <br />
-        <%= listing.location %> <br />
-        <%= listing.country %> <br />
-      </p>
+
+<div class="container mt-5">
+  <div class="row">
+    <!-- Title -->
+    <div class="col-8 offset-2 text-center mb-4">
+      <h2 class="fw-bold"><%= listing.title %></h2>
     </div>
-  </div>
-  <br />
-  <br />
-  <div class="btns">
-    <a
-      href="/listings/<%= listing._id %>/edit"
-      class="btn btn-dark add-btn col-1 offset-3"
-      >Edit</a
-    >
-    <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
-      <button class="btn btn-dark offset-5">Delete</button>
-    </form>
-  </div>
-  <div class="col-8 offset-3 mt-3">
-    <hr />
-    <h4>Leave a Review</h4>
-    <form action="/listings/<%= listing.id %>/reviews" method="post" novalidate class="needs-validation">
-      <div class="mb-3 mt-3">
-        <label for="rating" class="form-label">Rating</label>
-        <input
-          type="range"
-          class="form-range"
-          min="1"
-          max="5"
-          id="customRange2"
-          name="review[rating]"
+
+    <!-- Listing Image and Details -->
+    <div class="col-md-8 offset-2">
+      <div class="card shadow-lg border-0 rounded-4">
+        <img
+          src="<%= listing.image %>"
+          class="card-img-top rounded-top-4 object-fit-cover"
+          alt="listing image"
+          style="max-height: 400px; width: 100%; object-fit: cover"
         />
-      </div>
-      <div class="mb-3 mt-3">
-        <label for="comment" class="form-label">Comments</label>
-        <textarea
-          name="review[comment]"
-          id="comment"
-          cols="30"
-          rows="5"
-          class="form-control"
-          required
-        ></textarea>
-        <div class="invalid-feedback">
-          Please add some comments for review 
+
+        <div class="card-body p-4">
+          <p class="mb-1 text-muted">
+            <i class="bi bi-person-circle text-primary me-1"></i>
+            Posted by: <% if (listing.owner) { %>
+            <span class="fw-semibold text-primary"
+              ><%= listing.owner.username %></span
+            >
+            <% } else { %>
+            <span class="text-muted">Unknown</span>
+            <% } %>
+          </p>
+
+          <p class="card-text mt-3"><%= listing.description %></p>
+          <p class="card-text fw-bold fs-5 text-success">
+            <%= listing.price.toLocaleString("bn-BD", { style: 'currency',
+            currency: 'BDT' }) %>
+          </p>
+          <p class="card-text text-muted">
+            <i class="bi bi-geo-alt-fill"></i>
+            <%= listing.location %>, <%= listing.country %>
+          </p>
         </div>
       </div>
-      <div class="mb-3 mt-3">
+    </div>
+
+    <!-- Edit/Delete Buttons -->
+    <% if (currUser && listing.owner && currUser._id.toString() ===
+    listing.owner._id.toString()) { %>
+    <div
+      class="col-md-8 offset-2 mt-3 d-flex justify-content-between align-items-center"
+    >
+      <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-2"
+        >Edit</a
+      >
+      <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+        <button class="btn btn-dark">Delete</button>
+      </form>
+    </div>
+    <% } %>
+
+    <!-- Review Form -->
+    <% if (currUser) { %>
+    <div class="col-md-8 offset-2 mt-5">
+      <h4 class="mb-3">Leave a Review</h4>
+      <form
+        action="/listings/<%= listing.id %>/reviews"
+        method="post"
+        novalidate
+        class="needs-validation"
+      >
+        <div class="mb-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input
+            type="range"
+            class="form-range"
+            min="1"
+            max="5"
+            id="customRange2"
+            name="review[rating]"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comments</label>
+          <textarea
+            name="review[comment]"
+            id="comment"
+            cols="30"
+            rows="4"
+            class="form-control"
+            required
+          ></textarea>
+          <div class="invalid-feedback">
+            Please add some comments for review
+          </div>
+        </div>
         <button class="btn btn-outline-dark">Submit</button>
-      </div>
-    </form>
-    <hr>
-    <p><b>All Reviews</b></p>
-    <div class="row">
-      <% for(review of listing.reviews) { %>
-            <div class="card col-5 ms-3 mb-3">
-              <div class="card-body">
-                <h5 class="class-title">Lamputus</h5>
-                <p class="card-text"> <%= review.comment %> </p>
-                <p class="card-text"> <%= review.rating %> Star </p>
+      </form>
+    </div>
+    <% } %>
+
+    <!-- Reviews Section -->
+    <div class="col-md-8 offset-2 mt-5">
+      <hr />
+      <h4 class="mb-4">All Reviews</h4>
+      <div class="row gy-4">
+        <% for (review of listing.reviews) { %>
+        <div class="col-md-6">
+          <div
+            class="card shadow-sm border border-2 rounded-4 p-3 review-box h-100"
+          >
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-person-circle fs-4 text-primary me-2"></i>
+                  <h5 class="mb-0 fw-bold text-primary">
+                    @ <% if (review.author) { %> <%= review.author.username %>
+                    <% } else { %> Anonymous <% } %>
+                  </h5>
+                </div>
+                <p class="text-secondary mb-1">
+                  <i class="bi bi-chat-left-quote-fill me-1 text-dark"></i>
+                  <%= review.comment %>
+                </p>
+                <p>
+                  <span class="badge bg-warning text-dark"
+                    ><%= review.rating %> ⭐</span
+                  >
+                </p>
               </div>
-              <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="post">
-                  <button class="btn btn-sm btn-dark">Delete</button>
+              <% if (currUser && review.author && currUser._id.toString() ===
+              review.author._id.toString()) { %>
+              <form
+                action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE"
+                method="post"
+                class="text-end mt-2"
+              >
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
               </form>
+              <% } %>
             </div>
-       <% } %> 
+          </div>
+        </div>
+        <% } %>
+      </div>
     </div>
   </div>
 </div>
